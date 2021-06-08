@@ -78,6 +78,9 @@ func AuthenticateRequest(request *http.Request) *errors.RestError {
 	}
 	at, err := getAccessToken(atID)
 	if err != nil {
+		if err.Status == http.StatusNotFound {
+			return nil
+		}
 		return err
 	}
 
@@ -106,6 +109,7 @@ func getAccessToken(atID string) (*accessToken, *errors.RestError) {
 		if err := json.Unmarshal(response.Bytes(), &restErr); err != nil {
 			return nil, errors.NewInternalServerError("invalid error interface when trying to get access token")
 		}
+
 		return nil, &restErr
 	}
 	var at accessToken
